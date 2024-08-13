@@ -19,8 +19,8 @@ import (
 )
 
 var (
-	from     = "javohdev@gmail.com"
-	password = "Justdoit123"
+	from     = "qodirovazizbek1129@gmail.com"
+	password = "jkzt mtab wvaq ewlm "
 )
 
 // RegisterUser handles user registration
@@ -38,14 +38,14 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 	var body auth.RegisterReq
 	if err := c.BindJSON(&body); err != nil {
 		log.Printf("failed to bind JSON: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
 	password, err := t.HashPassword(body.Password)
 	if err != nil {
 		log.Printf("failed to hash password: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -63,13 +63,13 @@ func (h *Handlers) RegisterUser(c *gin.Context) {
 
 	input, err := json.Marshal(req)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
 	err = h.Producer.ProduceMessages("reg-user", input)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -91,14 +91,14 @@ func (h *Handlers) LoginUser(c *gin.Context) {
 	var req auth.LoginReq
 	if err := c.BindJSON(&req); err != nil {
 		log.Printf("failed to bind JSON: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
 	res, err := h.Auth.Login(context.Background(), &req)
 	if err != nil {
 		log.Printf("failed to login user: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -107,7 +107,7 @@ func (h *Handlers) LoginUser(c *gin.Context) {
 	_, err = h.Auth.SaveRefreshToken(context.Background(), &auth.RefToken{UserId: res.Id, Token: refToken})
 	if err != nil {
 		log.Printf("failed to refresh token: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -136,7 +136,7 @@ func (h *Handlers) ForgotPassword(c *gin.Context) {
 	_, err := h.Auth.ForgotPassword(context.Background(), &req)
 	if err != nil {
 		log.Printf("failed to send password reset email: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -145,7 +145,7 @@ func (h *Handlers) ForgotPassword(c *gin.Context) {
 	err = h.RDB.Set(context.Background(), forgotPasswordCode, req.Email, 15*time.Minute).Err()
 	if err != nil {
 		log.Printf("failed to store forgot password code in Redis: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -159,7 +159,7 @@ func (h *Handlers) ForgotPassword(c *gin.Context) {
 
 	if err != nil {
 		log.Printf("Could not send an email: %v", err.Error())
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -206,7 +206,7 @@ func (h *Handlers) ResetPassword(c *gin.Context) {
 	_, err = h.Auth.ResetPassword(context.Background(), &req)
 	if err != nil {
 		log.Printf("failed to reset password: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -233,7 +233,7 @@ func (h *Handlers) RefreshToken(c *gin.Context) {
 	res, err := h.Auth.RefreshToken(context.Background(), &req)
 	if err != nil {
 		log.Printf("failed to refresh token: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 
@@ -266,7 +266,7 @@ func (h *Handlers) ChangeRole(c *gin.Context) {
     })
     if err!= nil {
         log.Printf("failed to change role: %v", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error", "details": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Profile updated successfully"})

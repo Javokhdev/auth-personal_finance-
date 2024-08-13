@@ -49,7 +49,7 @@ func Run(cfg *config.Config) {
 	userService := service.NewUserService(db)
 
 	// Kafka
-	brokers := []string{"kafka:9092"}
+	brokers := []string{"localhost:9092"}
 	cm := kafka.NewKafkaConsumerManager()
 	pr, err := prd.NewKafkaProducer(brokers)
 	if err != nil {
